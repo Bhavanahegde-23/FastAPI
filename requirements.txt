@@ -1,3 +1,6 @@
 fastapi
 uvicorn
 sqlalchemy
+passlib
+pydantic
+bcryot==4.0.1
