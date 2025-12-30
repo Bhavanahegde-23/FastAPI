@@ -4,3 +4,5 @@ sqlalchemy
 passlib
 pydantic
 bcryot==4.0.1
+python-multipart
+python-jose[cryptography]

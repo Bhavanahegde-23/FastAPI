@@ -1,9 +1,6 @@
 from fastapi import Depends , Path , FastAPI
 import model
 from database import engine , SessionLocal
-from typing import Annotated
-from model import Todos
-from pydantic import BaseModel , Field
 from routers import auth , todos
 
 app =FastAPI()
