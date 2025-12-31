@@ -10,7 +10,10 @@ from fastapi.security import OAuth2PasswordRequestForm , OAuth2PasswordBearer
 from jose import JWTError, jwt
 from datetime import datetime, timedelta , timezone
 
-router = APIRouter()
+router = APIRouter(
+    prefix ='/auth',
+    tags = ['auth']
+)
 
 # Security settings using JWT
 SECRET_KEY = '9bd034b43e3976c04b127e5d296d22d091e8b4fa6135fb6928ab76989f25a79e'
@@ -19,7 +22,7 @@ ALGORITHM = 'HS256'
 bcrypt_context  = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 #this can be used to secure endpoints
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 class CreateUserRequest(BaseModel):
     username: str
@@ -62,10 +65,10 @@ async def get_current_user(token :Annotated[str, Depends(oauth2_bearer)]):
         username : str = payload.get('sub')
         user_id : int = payload.get('id')
         if username is None or user_id is None:
-            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
         return {'username': username , 'id':user_id}
     except JWTError:
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
 
 @router.post("/auth" , status_code=status.HTTP_201_CREATED)
 async def create_user(db:db_dependency ,
@@ -89,7 +92,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm 
                                  db:db_dependency):
     user = authUser(form_data.username , form_data.password , db)
     if not user:
-        return {"error": "Invalid Credentials"}
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
     token = create_access_token(user.username , user.id , timedelta(minutes=30))
     return {'access_token': token , 'token_type':'bearer'}
 
