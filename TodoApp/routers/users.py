@@ -55,3 +55,16 @@ async def change_password(change_password_request:ChangePasswordRequest,
         db.add(user_model)
         db.commit()
         return {'detail':'Password changed successfully'}
+
+@router.put('/phone' , status_code=status.HTTP_200_OK)
+async def update_phone(phone_no:str,
+                            db:db_dependency,
+                            user:user_dependency):
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Invalid user")
+        
+        user_model = db.query(Users).filter(Users.id == user.get('id')).first()
+        user_model.phone_no = phone_no
+        db.add(user_model)
+        db.commit()
+        return {'detail':'Phone number updated successfully'}

@@ -31,6 +31,7 @@ class CreateUserRequest(BaseModel):
     last_name: str
     password: str
     role : str
+    phone_no : str | None = None
 
 class Token(BaseModel):
     access_token:str
@@ -82,7 +83,8 @@ async def create_user(db:db_dependency ,
         last_name=user_request.last_name,
         hashed_password=bcrypt_context.hash(user_request.password),
         role = user_request.role,
-        is_active = True
+        is_active = True,
+        phone_no = user_request.phone_no
     )
     db.add(create_user_model)
     db.commit()
@@ -96,5 +98,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Could not validate credentials")
     token = create_access_token(user.username , user.id ,user.role, timedelta(minutes=30))
     return {'access_token': token , 'token_type':'bearer'}
+
 
 
